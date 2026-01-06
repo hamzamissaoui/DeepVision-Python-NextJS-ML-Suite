@@ -1,5 +1,6 @@
 from fastapi import FastAPI, UploadFile, File, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 import uvicorn
 import os
 import io
@@ -14,6 +15,9 @@ from .cnn import CustomCNN
 
 app = FastAPI(title="DeepVision ML Suite API")
 
+# Ensure output directory exists
+os.makedirs(Config.OUTPUT_DIR, exist_ok=True)
+
 # Enable CORS for frontend
 app.add_middleware(
     CORSMiddleware,
@@ -22,6 +26,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Mount outputs/ for serving training visualizations
+app.mount("/outputs", StaticFiles(directory=Config.OUTPUT_DIR), name="outputs")
 
 # Global state for training
 training_status = {
